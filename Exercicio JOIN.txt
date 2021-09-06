@@ -1,0 +1,188 @@
+Exercicio 07 de Setembro
+
+1 - REGISTRAR TODOS OS CODIGOS EM UM txt, adicionar no seu GITHUB e postar o caminho na resposta do Slack.
+	
+2 - Crie uma DataBase com o nome concessionaria e crie as tabelas abaixo:
+
+CREATE TABLE IF NOT EXISTS public.cliente
+(
+    id_cliente integer NOT NULL,
+    nome character varying COLLATE pg_catalog."default" NOT NULL,
+    idade integer NOT NULL,
+    cidade character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT cliente_pkey PRIMARY KEY (id_cliente)
+);
+
+CREATE TABLE IF NOT EXISTS public.veiculo
+(
+     id_veiculo integer NOT NULL,
+    ano integer,
+    valor money,
+    nome character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT veiculo_pkey PRIMARY KEY (id_veiculo)
+);
+
+CREATE TABLE IF NOT EXISTS public.vendedor
+(
+    id_vendedor integer NOT NULL,
+    cidade character varying COLLATE pg_catalog."default",
+    idade integer,
+    CONSTRAINT vendedor_pkey PRIMARY KEY (id_vendedor)
+);
+
+CREATE TABLE IF NOT EXISTS public.venda
+(
+    vendedor integer NOT NULL,
+    cliente integer NOT NULL,
+    veiculo integer NOT NULL
+);
+
+4 - Relacionar a Tabela vendas com as três tabelas usando o script abaixo:
+
+ALTER TABLE venda ADD CONSTRAINT cliente FOREIGN KEY (Cliente) REFERENCES cliente(id_cliente);
+ALTER TABLE venda ADD CONSTRAINT veiculo FOREIGN KEY (veiculo) REFERENCES veiculo(id_veiculo);
+ALTER TABLE venda ADD CONSTRAINT vendedor FOREIGN KEY (vendedor) REFERENCES vendedor(id_vendedor); 
+
+5 - Incluir dados nas tabelas
+
+insert into cliente(id_cliente,nome, idade, cidade) values
+(1000, 'Rafael', 35,'Salvador'),
+(1001, 'Danilo', 37,'Sao Paulo'),
+(1002, 'Lucas', 22,'Santos'),
+(1003, 'Tiago', 18,'Rio de Janeiro'),
+(1004, 'Pedro', 20,'Salvador'),
+(1005, 'Tiago', 60,'Rio de Janeiro'),
+(1006, 'Rodrigo', 68,'Sao Paulo'),
+(1007, 'Aline', 38,'Rio de Janeiro'),
+(1008, 'Bruna', 25,'Santos');
+
+
+insert into veiculo(id_veiculo,ano, valor, nome) values
+(2245, 2021, 85399, 'gol'),
+(2235, 2021, 84399, 'gol'),
+(2189, 2008, 32999, 'celta'),
+(4963, 2016, 85000, 'civic'),
+(3653, 2021, 112299, 'corolla'),
+(6858, 2021, 125999, 'corolla'),
+(6587, 2020, 883000, 'captur'),
+(2535, 2012, 25200, 'palio'),
+(3578, 2013, 33450, 'sandero'),
+(2346, 2014, 85450, 'sandero'),
+(5642, 2021, 215000, 'ranger'),
+(4267, 2017, 165990, 'ranger'),
+(6897, 2017, 65450, 'duster');
+
+
+insert into vendedor(id_vendedor, cidade, idade) values
+(1, 'Salvador', 33),
+(2, 'Rio de Janeiro', 44),
+(3, 'Santos', 38);
+
+
+insert into venda(vendedor, cliente, veiculo) values
+(1, 1001, 2245),
+(1, 1002, 2235),
+(1, 1003, 2189),
+(2, 1004, 4963),
+(2, 1005, 3653),
+(2, 1007, 6858),
+(3, 1008, 5642),
+(3, 1001, 2535),
+(3, 1001, 6897);
+
+6 - Verificar a criação das tabelas
+
+select * from cliente;
+select * from vendedor;
+select * from veiculo;
+select * from venda;
+
+7 - escreva o codigo para mostrar uma tabela com o nome do cliente e o id do veiculo vendido pela concessionaria.
+
+SELECT T01.nome, T02.veiculo FROM cliente T01 
+JOIN venda T02 ON T01.id_cliente = T02.cliente
+
+8 - escreva o codigo que mostre os veiculos que não foram vendidos.
+
+SELECT * FROM veiculo T01 
+LEFT JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+WHERE T02.cliente IS NULL
+
+9 - escreva o codigo que mostra o nome do cliente, o nome do veículo e o valor do veiculo, filtrando por veículos acima de 100 mil reais.
+
+SELECT * FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T01.valor > 'R$ 100000'
+
+10 - escreva o codigo que mostre a tabela que contenha o cliente Danilo, o nome dos veiculos que ele comprou e o valor.
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome = 'Danilo'
+
+11 - Supondo que Danilo tenha recebido um desconto de 15% no valor dos veículos comprados escreva o codigo que mostre a tabela que contenha o cliente Danilo, o nome dos veiculos que ele comprou e o novo valor, sem alterar as tabelas originais.  
+
+SELECT T03.nome, T01.nome, T01.valor-(T01.valor*0.15) FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome = 'Danilo'
+
+12 - escreva o codigo que mostre a tabela que contenha o cliente Danilo, o nome dos veiculos que ele comprou e o valor, filtrando para veículos abaixo de 70 mil.
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome = 'Danilo' AND T01.valor < 'R$ 70000'
+
+13 - escreva o codigo que mostre a tabela que contenha o nome do cliente, o nome dos veiculos que ele comprou e o valor, para todos os clientes exceto o Danilo.
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome != 'Danilo'
+
+14 - escreva o codigo que mostre a tabela que contenha o nome do cliente, o nome dos veiculos que ele comprou e o valor, para todos os clientes exceto o Danilo, classificando a coluna valor do menor para o maior. 
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome != 'Danilo'
+ORDER BY T01.valor ASC
+
+15 - escreva o codigo que mostre a tabela que contenha o nome do cliente, o nome dos veiculos que ele comprou e o valor, para todos os clientes exceto o Danilo, classificando a coluna valor do maior para o menor. 
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome != 'Danilo'
+ORDER BY T01.valor DESC
+
+16 - escreva o codigo que mostre a tabela que contenha o nome do cliente, o nome dos veiculos que ele comprou e o valor, para todos os clientes exceto o Danilo, classificando a coluna valor do maior para o menor e mostrando apenas os 3 primeiros registros. 
+
+SELECT T03.nome, T01.nome, T01.valor FROM veiculo T01 
+JOIN venda T02 ON T01.id_veiculo = T02.veiculo
+JOIN cliente T03 ON T02.cliente = T03.id_cliente
+WHERE T03.nome != 'Danilo'
+ORDER BY T01.valor ASC
+LIMIT 3
+
+17 - escreva o codigo que mostre a tabela que contenha apenas os nomes dos veículos de forma exclusiva, ou seja, sem se repetir. 
+
+SELECT DISTINCT T01.nome FROM veiculo T01
+
+18 - tente apagar os dados da tabela veiculos usando o TRUNCATE TABLE nome_da_tabela. Conseguiu? Por que? Coloque o comentário no txt.
+
+Não. a tabela veiculo está referenciando a tabela venda. Não pode utilizar truncate em uma tabela que está utilizando de FK.
+
+19 - Tente apagar os dados da tabela vendas. Conseguiu? Por que? Coloque o comentário no txt.
+
+Sim. A tabela venda puxava dados das outras, e não o inverso. Por isso foi possível.
+
+20 - insira novamente os dados na tabela vendas e vá curtir o feriado!  
+
+
+
+
+
